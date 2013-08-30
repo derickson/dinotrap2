@@ -9,14 +9,13 @@ var app = express();
 var server = http.createServer(app);
 var io = require("socket.io").listen(server);
 
+
+// ######### Prep Database
 var MongoClient = require('mongodb').MongoClient,
     ObjectID = require('mongodb').ObjectID,
     BSON = require('mongodb').pure().BSON;
-
 var db = null
-
 var users = null, traps = null, dinos = null;
-
 MongoClient.connect("mongodb://localhost:27017/dinotrap", function(err, dbgiven) {
   if(!err) {
     console.log("We are connected");
@@ -108,11 +107,44 @@ app.NearMe = function(data, cb) {
 		{"$set" : {"location": [data.lon, data.lat]} }, 
 		function(err, item){
 			// do nothing
+			
+			db.command(
+				{ 
+					geoNear: "dinos", 
+					near:  [-77.09289, 38.97957] , 
+					spherical:true , 
+					uniqueDocs: true, 
+					limit: 10, 
+					maxDistance: 5/69
+				}, 
+				function(err, data) {
+					console.log("The following dinos are near this: ");
+					console.log(data);
+					
+					var dinos = [];
+					
+					data.results.forEach(function(element, index, array){
+						
+						var dino = {
+							id: element.obj.VehicleID,
+							"lat": element.obj.positions[0].pos[1],							
+							"lon": element.obj.positions[0].pos[0]
+						}
+						console.log(dino);
+						dinos.push(dino);
+						
+					});
+					
+					cb( {"dinos": dinos, "traps":[]} );
+				}
+			)
+			
 		}
 	);
 	
 	
-	cb( {"dinos":[], "traps":[]} );
+	
+	
 	
 	var path = "/survivor/"+data.id+"/nearMe/"+data.lat+","+data.lon+"?format=json";
 	
