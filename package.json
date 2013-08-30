@@ -1,0 +1,19 @@
+{
+	"name": "dinotrap",
+	"version": "0.0.2",
+	"private": false,
+	"author": "derickson",
+	"dependencies": {
+		"socket.io": "0.9.x",
+		"express": "latest",
+		"mongodb": "latest"
+	},
+	"subdomain": "dinotrap",
+	"scripts": {
+		"start": "server.js"
+	},
+	"engines": {
+		"node": "0.10.x",
+		"npm": "1.2.x"
+	}
+}
