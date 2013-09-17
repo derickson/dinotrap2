@@ -81,10 +81,13 @@ var wmataOptions = {
 };
 
 utils.getJSON(wmataOptions, function(statusCode, result){
+	
+	
 	if(statusCode === 200) {
 		utils.processArray(10, result.BusPositions, function(b){
 			console.log("Found bus with id: "+ b.VehicleID);
 			
+
 			dinos.update(
 				{_id: b.VehicleID},
 				{ 
@@ -107,12 +110,18 @@ utils.getJSON(wmataOptions, function(statusCode, result){
 					multi:false
 				},
 				function(err,data) { 
-					//console.log("   db confirmation"); 
+					console.log("   db confirmation"); 
 				}
-			)
+			); 
 			
 		});
+		
 	} else {
 		console.log("Error");
 	}
 });
+
+
+
+//	use dinotrap;
+//	db.dinos.ensureIndex( { "positions.pos": "2d" } )

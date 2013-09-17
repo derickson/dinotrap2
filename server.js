@@ -100,22 +100,25 @@ app.DCDinos = function() {
 // a user is requesting information near their location
 app.NearMe = function(data, cb) {
 	
-	console.log( "NearMe" )
+	console.log( "NearMe" );
 	console.log( data );
 	
 	users.update({'_id': ObjectID(data.id)}, 
 		{"$set" : {"location": [data.lon, data.lat]} }, 
 		function(err, item){
-			// do nothing
-			
+			// issue geoNear query
+// db.command( { geoNear: "dinos", near: [-77.032768, 38.941021], spherical:true, uniqueDocs:true } , function(err, data) { if(data && data.results) console.log( data.results.length) } );
+
+			console.log("Finding dinos near: " + [data.lon, data.lat] );
+
 			db.command(
 				{ 
 					geoNear: "dinos", 
-					near:  [-77.09289, 38.97957] , 
+					near:  [data.lon, data.lat] , 
 					spherical:true , 
-					uniqueDocs: true, 
-					limit: 10, 
-					maxDistance: 5/69
+					uniqueDocs: true,
+					limit: 20
+					//maxDistance: 1/69
 				}, 
 				function(err, data) {
 					console.log("The following dinos are near this: ");
@@ -123,17 +126,22 @@ app.NearMe = function(data, cb) {
 					
 					var dinos = [];
 					
-					data.results.forEach(function(element, index, array){
+					console.log(  data );
+					
+					if(data && data.results && data.results.length > 0) {
 						
-						var dino = {
-							id: element.obj.VehicleID,
-							"lat": element.obj.positions[0].pos[1],							
-							"lon": element.obj.positions[0].pos[0]
-						}
-						console.log(dino);
-						dinos.push(dino);
+						data.results.forEach(function(element, index, array){
 						
-					});
+							var dino = {
+								id: element.obj.VehicleID,
+								"lat": element.obj.positions[0].pos[1],							
+								"lon": element.obj.positions[0].pos[0]
+							}
+							console.log(dino);
+							dinos.push(dino);
+						
+						});
+					}
 					
 					cb( {"dinos": dinos, "traps":[]} );
 				}
